@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+<body>
+
+    <div id="msgBox">
+    {% for msg in messages %}
+        <p>{{msg.user}} - {{msg.message}}</p>
+
+    {% endfor %}
+
+    </div>
+    <input type="text" id="msg">
+    <button onclick="sendMsg()">Send</button>
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/room/'
+        );
+
+        chatSocket.onmessage = (e)=>{
+            const msgData = JSON.parse(e.data);
+            console.log(msgData);
+
+            const mesTag = document.createElement("p");
+            mesTag.innerHTML = `${msgData.user} - ${msgData.message}`;
+            document.getElementById("msgBox").appendChild(mesTag);
+        }
+
+        function sendMsg(){
+
+            const message = document.getElementById("msg").value;
+            
+            console.log(message);
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                user : '{{request.user.username}}'
+            }));
+        }
+
+    </script>
+</body>
+</html>
